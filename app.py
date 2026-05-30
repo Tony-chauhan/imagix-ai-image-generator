@@ -91,30 +91,31 @@ def generate_image():
         last_error_msg = "API failed to respond"
         
         # Attempts Configuration:
-        # 1. Default high-quality model (unspecified) at original size
-        # 2. Fast/Free model ('turbo') at original size (immune to anonymous paid blocks)
-        # 3. Default model downscaled to 75%
-        # 4. 'Turbo' model downscaled to 75%
-        # 5. 'Turbo' model at completely safe fallback resolution (512x512)
+        # We try to generate without a watermark first (nologo=true).
+        # If that fails with a 402 (Payment Required) because anonymous watermark removal is blocked, 
+        # we immediately retry the request with the watermark allowed (nologo parameter removed).
         attempts_config = [
-            (None, width, height),
-            ("turbo", width, height),
-            (None, int(width * 0.75) if width > 512 else width, int(height * 0.75) if height > 512 else height),
-            ("turbo", int(width * 0.75) if width > 512 else width, int(height * 0.75) if height > 512 else height),
-            ("turbo", 512, 512)
+            # (model, width, height, use_nologo)
+            (None, width, height, True),       # 1. Default model, original size, no watermark
+            (None, width, height, False),      # 2. Default model, original size, with watermark (immune to 402/billing blocks)
+            ("turbo", width, height, True),    # 3. Turbo model, original size, no watermark
+            ("turbo", width, height, False),   # 4. Turbo model, original size, with watermark
+            (None, int(width * 0.75) if width > 512 else width, int(height * 0.75) if height > 512 else height, False), # 5. Default downscaled, with watermark
+            ("turbo", 512, 512, False)         # 6. Turbo safe size, with watermark
         ]
 
         final_width, final_height = width, height
 
-        for idx, (current_model, current_w, current_h) in enumerate(attempts_config):
+        for idx, (current_model, current_w, current_h, use_nologo) in enumerate(attempts_config):
             # Format model parameter if defined
             model_param = f"&model={current_model}" if current_model else ""
-            api_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width={current_w}&height={current_h}&seed={seed}&nologo=true{model_param}"
+            nologo_param = "&nologo=true" if use_nologo else ""
+            api_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width={current_w}&height={current_h}&seed={seed}{nologo_param}{model_param}"
             
             try:
                 # Add unique cache bypass query param to force generation
                 attempt_url = api_url + f"&cache_bypass={uuid.uuid4().hex}"
-                print(f"[IMAGIX LOG] Calling API - Model: {current_model or 'default'}, Dim: {current_w}x{current_h}, Level: {idx+1}")
+                print(f"[IMAGIX LOG] Calling API - Model: {current_model or 'default'}, Dim: {current_w}x{current_h}, NoLogo: {use_nologo}, Level: {idx+1}")
                 
                 response = requests.get(attempt_url, headers=headers, timeout=20)
                 
