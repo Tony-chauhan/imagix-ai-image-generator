@@ -105,7 +105,7 @@ Deploying IMAGIX on **Render.com** takes less than 2 minutes and is completely f
 
 - **AI Engine**: Powered by the public and free [Pollinations AI](https://pollinations.ai) API framework.
 - **Design System**: Handcrafted utilizing modern CSS custom property pipelines and glassmorphism.
-- **Author**: Created with 💜 by **Tony Chauhan** ([@Tony-chauhan](https://github.com/Tony-chauhan)).
+- **Author**: Created with 💜 by **dharmender Chauhan** ([@dharmender-chauhan](https://github.com/dharmender-chauhan)).
 
 ---
 <p align="center">Made with 🧬 in Developer Style</p>
