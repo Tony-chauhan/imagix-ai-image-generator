@@ -1,0 +1,17 @@
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Databases
+database.db
+
+# Environments
+.env
+.venv
+env/
+venv/
+
+# User Generated Images (preserve .gitkeep)
+static/images/gen_*
+!static/images/.gitkeep
