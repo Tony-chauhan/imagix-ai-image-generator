@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Generate beautiful and breathtaking high-quality AI images dynamically with custom style presets, dimensions, and seamless local history storage.">
+    <title>IMAGIX — Premium AI Image Generator</title>
+    
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="dark-theme">
+    <div class="app-container" id="app-wrapper">
+        
+        <!-- SIDEBAR: HISTORY & SETTINGS -->
+        <aside class="sidebar" id="sidebar-panel">
+            <div class="sidebar-header">
+                <div class="brand">
+                    <div class="brand-icon">
+                        <!-- Magic Wand SVG Icon -->
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7.5 5.6L5.6 7.5L4.2 6.1L6.1 4.2L7.5 5.6M18.4 5.6L19.8 4.2L21.2 5.6L19.8 7L18.4 5.6M12 2A2 2 0 0 1 14 4A2 2 0 0 1 12 6A2 2 0 0 1 10 4A2 2 0 0 1 12 2M12 18A2 2 0 0 1 14 20A2 2 0 0 1 12 22A2 2 0 0 1 10 20A2 2 0 0 1 12 18M4.2 18.4L5.6 17L7 18.4L5.6 19.8L4.2 18.4M19.8 17L18.4 18.4L17 17L18.4 15.6L19.8 17M12 8A4 4 0 0 1 16 12A4 4 0 0 1 12 16A4 4 0 0 1 8 12A4 4 0 0 1 12 8Z" />
+                        </svg>
+                    </div>
+                    <h1 class="brand-name">IMAGIX</h1>
+                </div>
+                
+                <!-- Dark/Light Theme Toggle -->
+                <button type="button" class="theme-toggle" id="theme-toggle-btn" aria-label="Toggle light and dark themes">
+                    <!-- Sun/Moon Combination Icon -->
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12,18C11.11,18 10.26,17.8 9.5,17.45C11.56,16.5 13,14.42 13,12C13,9.58 11.56,7.5 9.5,6.55C10.26,6.2 11.11,6 12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18M20,8.69V4H15.31L12,0.69L8.69,4H4V8.69L0.69,12L4,15.31V20H8.69L12,23.31L15.31,20H20V15.31L23.31,12L20,8.69Z" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="sidebar-content">
+                <div class="control-group">
+                    <div class="section-title">
+                        <span>Generation History</span>
+                        <button type="button" class="clear-btn" id="clear-history-btn">Clear All</button>
+                    </div>
+                    
+                    <div class="history-grid" id="history-items-container">
+                        <!-- History items will be dynamically loaded via JS -->
+                        <div class="history-empty" id="history-empty-message">
+                            <svg viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <p>No generations yet.<br>Create something epic!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- MAIN SECTION: GENERATION FORM & PREVIEW PANEL -->
+        <main class="main-content">
+            
+            <!-- LEFT PANEL: GENERATOR INPUTS -->
+            <section class="generation-panel" id="generator-controls">
+                <header class="generation-header">
+                    <h2 class="panel-title">Turn Text Into <span>Art</span></h2>
+                    <p class="subtitle">Enter your creative imagination and synthesize breathtaking visual masterpieces in seconds.</p>
+                </header>
+                
+                <!-- Text Prompt Input -->
+                <div class="control-group">
+                    <label for="prompt-input-field" class="control-label">
+                        <span>Creative Text Prompt</span>
+                        <span class="badge">AI Engine v4.0</span>
+                    </label>
+                    <div class="prompt-input-wrapper">
+                        <textarea 
+                            id="prompt-input-field" 
+                            class="prompt-textarea" 
+                            placeholder="A majestic space nebula, swirling purple and neon pink gases, cinematic lighting, 8k resolution, ultra detailed..." 
+                            maxlength="500"></textarea>
+                        <div class="prompt-actions">
+                            <button type="button" class="surprise-btn" id="surprise-prompt-btn">
+                                <span>✨ Surprise Me</span>
+                            </button>
+                            <span class="counter" id="char-counter">0/500</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Image Style Presets -->
+                <div class="control-group">
+                    <label class="control-label">Choose Rendering Style</label>
+                    <div class="style-grid" id="style-presets-container">
+                        <div class="style-card active" data-style="none">
+                            <div class="style-card-icon">🎨</div>
+                            <span class="style-card-name">Default</span>
+                        </div>
+                        <div class="style-card" data-style="cinematic">
+                            <div class="style-card-icon">🎬</div>
+                            <span class="style-card-name">Cinematic</span>
+                        </div>
+                        <div class="style-card" data-style="anime">
+                            <div class="style-card-icon">🎎</div>
+                            <span class="style-card-name">Anime</span>
+                        </div>
+                        <div class="style-card" data-style="cyberpunk">
+                            <div class="style-card-icon">⚡</div>
+                            <span class="style-card-name">Cyberpunk</span>
+                        </div>
+                        <div class="style-card" data-style="3d-render">
+                            <div class="style-card-icon">💎</div>
+                            <span class="style-card-name">3D Render</span>
+                        </div>
+                        <div class="style-card" data-style="fantasy">
+                            <div class="style-card-icon">🦄</div>
+                            <span class="style-card-name">Fantasy</span>
+                        </div>
+                        <div class="style-card" data-style="oil-painting">
+                            <div class="style-card-icon">🖌️</div>
+                            <span class="style-card-name">Oil Paint</span>
+                        </div>
+                        <div class="style-card" data-style="pixel-art">
+                            <div class="style-card-icon">👾</div>
+                            <span class="style-card-name">Pixel Art</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Image Dimensions / Aspect Ratios -->
+                <div class="control-group">
+                    <label class="control-label">Aspect Ratio</label>
+                    <div class="aspect-grid" id="aspect-ratio-container">
+                        <div class="aspect-card active" data-ratio="1:1" data-width="1024" data-height="1024">
+                            <div class="aspect-box" data-ratio="1:1"></div>
+                            <span class="aspect-name">Square</span>
+                            <span class="aspect-ratio-text">1:1 (1024x1024)</span>
+                        </div>
+                        <div class="aspect-card" data-ratio="16:9" data-width="1440" data-height="810">
+                            <div class="aspect-box" data-ratio="16:9"></div>
+                            <span class="aspect-name">Cinematic</span>
+                            <span class="aspect-ratio-text">16:9 (1440x810)</span>
+                        </div>
+                        <div class="aspect-card" data-ratio="9:16" data-width="810" data-height="1440">
+                            <div class="aspect-box" data-ratio="9:16"></div>
+                            <span class="aspect-name">Portrait</span>
+                            <span class="aspect-ratio-text">9:16 (810x1440)</span>
+                        </div>
+                        <div class="aspect-card" data-ratio="4:3" data-width="1152" data-height="864">
+                            <div class="aspect-box" data-ratio="4:3"></div>
+                            <span class="aspect-name">Standard</span>
+                            <span class="aspect-ratio-text">4:3 (1152x864)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Button -->
+                <button type="button" class="generate-btn" id="generate-trigger-btn">
+                    <!-- Sparkles SVG Icon -->
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19,10.5C19,11.3 19.7,12 20.5,12C21.3,12 22,11.3 22,10.5C22,9.7 21.3,9 20.5,9C19.7,9 19,9.7 19,10.5M12,4.5C12,5.3 12.7,6 13.5,6C14.3,6 15,5.3 15,4.5C15,3.7 14.3,3 13.5,3C12.7,3 12,3.7 12,4.5M19,17.5C19,18.3 19.7,19 20.5,19C21.3,19 22,18.3 22,17.5C22,16.7 21.3,16 20.5,16C19.7,16 19,16.7 19,17.5M12,13.5C12,15.4 13.6,17 15.5,17C17.4,17 19,15.4 19,13.5C19,11.6 17.4,10 15.5,10C13.6,10 12,11.6 12,13.5M2,13.5C2,17.6 5.4,21 9.5,21C13.6,21 17,17.6 17,13.5C17,9.4 13.6,6 9.5,6C5.4,6 2,9.4 2,13.5M4,13.5C4,10.5 6.5,8 9.5,8C12.5,8 15,10.5 15,13.5C15,16.5 12.5,19 9.5,19C6.5,19 4,16.5 4,13.5Z" />
+                    </svg>
+                    <span>Generate Artwork</span>
+                </button>
+            </section>
+            
+            <!-- RIGHT PANEL: IMAGE PREVIEW -->
+            <section class="preview-panel-container" id="preview-panel">
+                <div class="preview-wrapper ratio-1-1" id="image-display-frame">
+                    
+                    <!-- Fallback / Empty state placeholder -->
+                    <div class="preview-placeholder" id="preview-fallback-container">
+                        <svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                        <p>Your generated visual creations will render here in premium high fidelity.</p>
+                    </div>
+                    
+                    <!-- Generated Image -->
+                    <img src="" alt="AI generated artwork" class="preview-image" id="active-generated-image">
+                    
+                    <!-- SVG Interactive Loading Screen Overlay -->
+                    <div class="loader-overlay" id="interactive-loader-screen">
+                        <svg class="loader-spinner-svg" viewBox="0 0 50 50">
+                            <circle cx="25" cy="25" r="20"></circle>
+                        </svg>
+                        <div class="loader-status" id="loader-status-text">Drafting concept...</div>
+                        <div class="loader-substatus" id="loader-substatus-text">Connecting to synthetic neural nodes</div>
+                    </div>
+                </div>
+                
+                <!-- Detailed metadata section -->
+                <div class="preview-details" id="metadata-details-card">
+                    <div class="detail-row">
+                        <span class="detail-label">Render Seed</span>
+                        <span class="detail-value" id="metadata-seed">2938472938</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Style Preset</span>
+                        <span class="detail-value" id="metadata-style">Cinematic Art</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Resolution</span>
+                        <span class="detail-value" id="metadata-resolution">1024 x 1024</span>
+                    </div>
+                    
+                    <!-- Preview Page Controls -->
+                    <div class="preview-actions">
+                        <a href="" download class="action-btn download-btn" id="action-download-btn">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                <path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" />
+                            </svg>
+                            <span>Download JPG</span>
+                        </a>
+                        <button type="button" class="action-btn delete-btn" id="action-delete-btn">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
+                            </svg>
+                            <span>Delete Asset</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Float notifications (Toast System) -->
+    <div class="toast" id="system-toast-panel">
+        <span id="toast-message-text">Asset generated successfully!</span>
+    </div>
+    
+    <!-- Main Controller Logic JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
